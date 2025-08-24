@@ -1,4 +1,14 @@
-#lang racket
+#lang plai
+
+;; Practica 1.
+;; Integrantes del Equipo:
+;; - Gonzalez Castillo Patricio Salvador
+;; -
+;; -
+;; -
+
+
+
 
 ;; 1. letras-repetidas? : String -> Boolean
 (define (letras-repetidas? s)
@@ -49,3 +59,21 @@
 ;; 8. zigzag-sum : (listof number) -> number
 
 ;; 9. generate-brackets : (listof number) -> number
+;; Genera todas las combinaciones válidas de paréntesis balanceados para n pares
+(define (generate-brackets n)
+  (cond
+    [(= n 0) '("")]        ; caso base: lista con cadena vacía
+    [else
+     (apply append
+            (for/list ([k (in-range n)])
+              (formar-p k (- n 1 k))))]))
+
+;; formar-p : number number -> (listof string)
+;; Genera todas las combinaciones de la forma (p)q donde p tiene k pares y q tiene m pares
+(define (formar-p k m)
+  (define p-combinations (generate-brackets k))
+  (define q-combinations (generate-brackets m))
+  (apply append
+         (for/list ([p p-combinations])
+           (for/list ([q q-combinations])
+             (string-append "(" p ")" q)))))
