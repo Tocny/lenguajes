@@ -5,7 +5,7 @@
 ;; - Gonzalez Castillo Patricio Salvador
 ;; -
 ;; -
-;; -
+;; - Sautto Ramirez Seldon 321084163
 
 
 
@@ -49,14 +49,36 @@
     (and (= (length l1) (length l2)) (prefijo? l1 l2)))) ; se verifica si tienen el mismo tamaño y despues a terminos practicos verifica si son iguales
 
 ;; 4. intercalar :  (listof number) -> (listof number)
+(define (intercalar a b)
+  (cond
+    [(empty? a) b] ; caso base: a vacia
+    [(empty? b) a] ; caso base: b vacia
+    [else (cons (first a) ; toma el primero de a
+                (cons (first b) ; toma el primero de b
+                      (intercalar (rest a) (rest b))))])) ; recursion con los restos
 
 ;; 5. tipo-de-orden : (listof number) -> String
 
 ;; 6. dividir-prefijos : string -> (listof (pair string string))
 
 ;; 7. caracteres-unicos : string -> (listof char)
+(define (caracteres-unicos s)
+  (let ([char (string->list s)]) ; convertimos el string a una lista de chars
+    (let rec ([xs char] [vistos '()]) ; creamos lista para acumular los vistos y funcion recursiva
+      (cond
+        [(empty? xs) '()] ; caso base, sin mas caracteres
+        [(member (first xs) vistos) ; si ya lo vimos, lo saltamos
+         (rec (rest xs) vistos)]
+        [else (cons (first xs) (rec (rest xs) (cons (first xs) vistos)))])))) ; si es nuevo, lo conservamos y marcamos como visto
+  
 
 ;; 8. zigzag-sum : (listof number) -> number
+(define (zigzag-sum lst)
+  (let rec ([xs lst] [sign 1]) ; sign = 1 para sumar, -1 para restar, funcion recursiva
+    (cond
+      [(empty? xs) 0] ; caso base: lista vacia suma 0
+      [else (+ (* sign (first xs)) ; aplica el signo al primer elemento
+               (rec (rest xs) (- sign)))]))) ; cambia el signo multiplicando por -1 
 
 ;; 9. generate-brackets : (listof number) -> number
 ;; Genera todas las combinaciones válidas de paréntesis balanceados para n pares
