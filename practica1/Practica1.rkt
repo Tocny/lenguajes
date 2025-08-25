@@ -3,7 +3,7 @@
 ;; Practica 1.
 ;; Integrantes del Equipo:
 ;; - Gonzalez Castillo Patricio Salvador
-;; -
+;; - Valencia Pérez Guillermo Emanuel
 ;; -
 ;; - Sautto Ramirez Seldon 321084163
 
