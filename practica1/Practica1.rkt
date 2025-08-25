@@ -4,10 +4,8 @@
 ;; Integrantes del Equipo:
 ;; - Gonzalez Castillo Patricio Salvador
 ;; - Valencia Pérez Guillermo Emanuel
-;; -
+;; - Rubio Resendiz Marco Antonio
 ;; - Sautto Ramirez Seldon 321084163
-
-
 
 
 ;; 1. letras-repetidas? : String -> Boolean
@@ -58,8 +56,43 @@
                       (intercalar (rest a) (rest b))))])) ; recursion con los restos
 
 ;; 5. tipo-de-orden : (listof number) -> String
+(define (tipo-de-orden lst)
+  (cond
+    ;; Verificamos que sea ascendente o descendente (se amortiguan casos base de ambos auxiliares).
+    [(and (ascendente? lst) (not (descendente? lst))) "ascendente"] 
+    [(and (descendente? lst) (not (ascendente? lst))) "descendente"]
+    [else "no ordenada"]))
+
+
+;; Auxiliar que revisa si es estrictamente ascendente
+(define (ascendente? lst)
+  (cond
+    [(or (empty? lst) (empty? (rest lst))) #t] ;; Base: si es vacía o solo tiene un elemento (por vacuidad verdadero).
+    [(>= (first lst) (second lst)) #f] ;; Falso si el primero es mayor o igual que el segundo (desciende en un paso).
+    [else (ascendente? (rest lst))]))  ;; No se falseó, entonces verificará si sigue ascendiendo (recursión).
+
+;; Auxiliar que revisa si es estrictamente descendente
+(define (descendente? lst)
+  (cond
+    [(or (empty? lst) (empty? (rest lst))) #t] ;; Base: si es vacía o solo tiene un elemento (por vacuidad verdadero).
+    [(<= (first lst) (second lst)) #f] ;; Falso si el primero es menor o igual que el segundo (asciende en un paso).
+    [else (descendente? (rest lst))])) ;; No se falseó, entonces verificará si sigue descendiendo (recursión).
+
 
 ;; 6. dividir-prefijos : string -> (listof (pair string string))
+(define (dividir-prefijos s)
+  (if (<= (string-length s) 1) ;;verifica si la longitud de s es menor que 1
+      '() ;; si, entonces no puede procesarla para dividirla.
+      (pares s ""))) ;; no, entonces deberá generar los pares.
+
+;; Auxiliar para generar pares recursivamente.
+(define (pares s acumulado)
+  (if (>= (string-length acumulado) (- (string-length s) 1))
+      '()  ; Base: si el acumulado está a un caracter de ser la cadena completa, se detiene.
+      (let* ([prefijo (string-append acumulado (substring s (string-length acumulado) (+ (string-length acumulado) 1)))]  ;; agrega el siguiente caracter de s al acumulado.
+             [resto (substring s (+ (string-length acumulado) 1))] ;; toma el restante que aun no ha sido procesado
+             [par-actual (cons prefijo resto)]) ;; construye el par del prefijo con el restante.
+        (cons par-actual (pares s prefijo))))) ;; construye el par del recien construido con una recursión para seguir procesando a s.
 
 ;; 7. caracteres-unicos : string -> (listof char)
 (define (caracteres-unicos s)
