@@ -2,9 +2,9 @@
 
 ;; Practica 1.
 ;; Integrantes del Equipo:
-;; - Gonzalez Castillo Patricio Salvador
-;; - Valencia Pérez Guillermo Emanuel
-;; - Rubio Resendiz Marco Antonio
+;; - Gonzalez Castillo Patricio Salvador 321142391
+;; - Valencia Pérez Guillermo Emanuel 321018689
+;; - Rubio Resendiz Marco Antonio 320209763
 ;; - Sautto Ramirez Seldon 321084163
 
 
