@@ -44,8 +44,15 @@
          (elegir-personaje-aleatorio lista-personajes) ;;personaje oculto
          '())) ;;historial de preguntas
 
-
 ;; 2.2.3 hacer-pregunta.
+(define (hacer-pregunta j pred)
+  (let* ((personaje-secreto (juego-oculto j))
+         (respuesta (pred personaje-secreto))
+         (nuevo-historial (cons pred (juego-preguntas j)))
+         (nuevo-juego (juego (juego-tablero j) 
+                            (juego-oculto j) 
+                            nuevo-historial)))
+    (values respuesta nuevo-juego)))
 
 
 ;; 2.2.4 filtrar-tablero
@@ -64,5 +71,13 @@
 (define david (personaje 'david 'rojo #t #t 'hombre))
 (define silvia (personaje 'silvia 'rubio #f #f 'mujer))
 
+
 ;; Los metemos a una lista
 (define personajes (list carlos maria vivian federico david silvia))
+
+
+;; Ejemplos de uso:
+(define juego1 (crear-juego personajes))
+(define (usa-gafas? p) (personaje-gafas p))
+(define-values (respuesta1 juego2) (hacer-pregunta juego1 usa-gafas?))
+
