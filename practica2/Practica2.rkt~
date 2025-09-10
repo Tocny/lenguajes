@@ -10,11 +10,9 @@
 ;; 2.1.1. divisor?: number  number -> boolean
 (define (divisor? m n)
   (cond
-    [(= m 0) (error "El cero no es divisor de nadie")] ;si m es 0 entonces no es divisor de nadie
-    [(= n 0) #t] ;si n es cero, cualquier numero es su divisor
-    [(not (empty? ;si la lista que devolvió filter no es vacía devuelve true
-        (filter (λ (k) (= (* m k) n)) ;filtra los numeros de 1 hasta n dependiendo si m multiplicado por alguno de esos es n
-                (range 1 (+ 1 n)))))]))
+    [(= m 0) (error "El cero no es divisor de nadie")] ;primer caso base
+    [(= m 1) #t] ;segundo caso base, 1 siempre es divisor de cualquier numero
+    [(= (remainder n m) 0) #t])) ;si el residuo de la division es 0, entonces es divisor
 
 ;; 2.1.2. concat-numero: (listof number) -> number
 (define (concat-numero list) 
