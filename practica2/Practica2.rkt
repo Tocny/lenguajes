@@ -8,9 +8,17 @@
 ;; - Sautto Ramirez Seldon 321084163
 
 ;; 2.1.1. divisor?: number  number -> boolean
-
+(define (divisor? m n)
+  (cond
+    [(= m 0) (error "El cero no es divisor de nadie")] ;primer caso base
+    [(= m 1) #t] ;segundo caso base, 1 siempre es divisor de cualquier numero
+    [(= (remainder n m) 0) #t])) ;si el residuo de la division es 0, entonces es divisor
 
 ;; 2.1.2. concat-numero: (listof number) -> number
+(define (concat-numero list) 
+  (foldl (λ (x acc) (+ (* acc 10) x)) 0 list)) ;usa la funcion foldl para aplicarle la funcion a cada
+;elemento y sumar el resultado, primero hace 0 * 10 y suma el primer elemento, luego hace lo que salió por 10
+;y suma el segundo elemento y asi con todos, usa una funcion anonima como se pide en las instrucciones
 
 
 ;; 2.2.1 Estructura Juego.
