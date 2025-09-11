@@ -59,9 +59,22 @@
 
 
 ;; Punto extra.
+;; Funcion auxiliar recursiva similar a doc de lab
+(define (my-filter f lst) ;; ; f: predicado, lst: lista a filtrar
+  (cond [(empty? lst) '()]
+        [(f (first lst)) (cons (first lst) (my-filter f (rest lst)))] ; si (f (first lst)) es #t, incluye el primero y continúa
+        [else (my-filter f (rest lst))])) ; si es #f, descarta el primero y continúa con el resto
 
 
+(define (filtrar-tablero j pred respuesta)
+  (let* ([tab (juego-tablero j)] ; tablero actual (lista de personajes visibles)
+         [mantener? (lambda (p) ; decide si el personaje p se queda en el tablero
+                  (if respuesta (pred p) (not (pred p))))] ; si respuesta=#t ⇒ pred p; si respuesta=#f ⇒ (not (pred p))
+         [tab* (my-filter mantener? tab)]) ; filtra el tablero aplicando mantener? a cada personaje
+    (juego tab* (juego-oculto j) (juego-preguntas j)))) ; regresa juego con tablero filtrado; oculto/preguntas sin cambios
 
+
+;; Punto extra.
 
 ;; Ejemplos de uso.
 (define carlos (personaje 'carlos 'negro #t #f 'hombre))
@@ -78,6 +91,11 @@
 
 ;; Ejemplos de uso:
 (define juego1 (crear-juego personajes))
+
 (define (usa-gafas? p) (personaje-gafas p))
 (define-values (respuesta1 juego2) (hacer-pregunta juego1 usa-gafas?))
+(printf "Respuesta a 'usa-gafas?': ~a\n" respuesta1)
 
+(define juego3 (filtrar-tablero juego2 usa-gafas? respuesta1))
+(printf "Tablero tras filtrar: ~a\n"
+        (map personaje-nombre (juego-tablero juego3)))
