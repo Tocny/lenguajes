@@ -57,8 +57,6 @@
 
 ;; 2.2.4 filtrar-tablero
 
-
-;; Punto extra.
 ;; Funcion auxiliar recursiva similar a doc de lab
 (define (my-filter f lst) ;; ; f: predicado, lst: lista a filtrar
   (cond [(empty? lst) '()]
