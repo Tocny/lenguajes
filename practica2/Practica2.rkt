@@ -46,14 +46,11 @@
 
 ;; 2.2.3 hacer-pregunta.
 (define (hacer-pregunta j pred)
-  (let* ((personaje-secreto (juego-oculto j))
-         (respuesta (pred personaje-secreto))
-         (nuevo-historial (cons pred (juego-preguntas j)))
-         (nuevo-juego (juego (juego-tablero j) 
-                            (juego-oculto j) 
-                            nuevo-historial)))
-    (values respuesta nuevo-juego)))
-
+  (define r (pred (juego-oculto j)))
+  (define nuevo-hist(cons (cons pred r) (juego-preguntas j)))
+  (values r (juego (juego-tablero j)
+                   (juego-oculto j)
+                   nuevo-hist)))
 
 ;; 2.2.4 filtrar-tablero
 
