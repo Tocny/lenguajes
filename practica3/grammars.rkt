@@ -4,7 +4,7 @@
   [binding (id symbol?) (value FWAE?)])
 
 ;; Definición del tipo WAE
-(define-type WAE
+(define-type FWAE
   [id    (i symbol?)]
   [num   (n number?)]
   [op    (f procedure?) (args (listof FWAE?))]
