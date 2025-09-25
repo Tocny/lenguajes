@@ -1,1 +1,0 @@
-("8.16" ta6le ("97da0f718772679be98573fe5eb9a240a7c110f6" . "841520c9551ed329044f427ed61fd0a78395607a") #"/home/guille/Guillermo/lenguajes/practica3/./grammars.rkt" (collects #"drracket" #"private" #"drracket-errortrace-key.rkt") (collects #"plai" #"lang" #"reader.rkt") (collects #"plai" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))
