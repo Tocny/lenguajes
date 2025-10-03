@@ -1,1 +1,0 @@
-("8.18" ta6le ("6c23a9ffde63dc70f504df8deb5ad7524bba263a" . "9d4744535bd72c5146ab53835087ff8429e7c0cf") #"/home/tocny/Documentos/Code/lprog/lenguajes/practica3/./grammars.rkt" (collects #"drracket" #"private" #"drracket-errortrace-key.rkt") (collects #"plai" #"lang" #"reader.rkt") (collects #"plai" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))
