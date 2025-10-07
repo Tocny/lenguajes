@@ -9,12 +9,23 @@
 
 ;; Definición del tipo Binding
 (define-type Binding
-  [binding (id symbol?) (value FWAE?)])
+  [binding (id symbol?) (value CFWAE?)])
 
-;; Definición del tipo WAE
-(define-type FWAE
+;; Definición del tipo CFWAE
+(define-type CFWAE
   [id    (i symbol?)]
   [num   (n number?)]
-  [op    (f procedure?) (args (listof FWAE?))]
-  [with  (bindings (listof binding?)) (body FWAE?)]
-  [with* (bindings (listof binding?)) (body FWAE?)])
+  [op    (f procedure?) (args (listof CFWAE?))]
+  [if0   (condition CFWAE?) (then CFWAE?) (else CFWAE?)]
+  [fun   (params (listof symbol?)) (body CFWAE?)]
+  [app   (fun CFWAE?) (args (listof CFWAE?))])
+
+;; Definición del tipo CFWAE-Value (para ejr 3, no se sabe commo funciona.)
+(define-type CFWAE-Value
+  [numV     (n number?)]
+  [closure (params (listof symbol?)) (body CFWAE?) (ds DefrdSub?)])
+
+;; Definición del tipo DefrdSub (caché de sustituciones)
+(define-type DefrdSub
+  [mtSub]
+  [aSub (name symbol?) (value CFWAE-Value?) (ds DefrdSub?)])
