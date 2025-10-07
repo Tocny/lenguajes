@@ -11,7 +11,13 @@
 
 ;; lookup.
 (define (lookup name ds)
-  "lol")
+  (type-case DefrdSub ds
+    [mtSub () 
+           (error (format "interp: hay un identificador libre: ~a" name))]
+    [aSub (n v rest-ds)
+          (if (symbol=? n name)
+              v
+              (lookup name rest-ds))]))
 
 ;; interp : CFWAE DefrdSub -> CFWAE-Value
 (define (interp expr ds)

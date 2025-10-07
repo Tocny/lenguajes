@@ -1,6 +1,6 @@
 #lang plai
 
-;; Practica 3.
+;; Practica 4.
 ;; Integrantes del Equipo:
 ;; - Gonzalez Castillo Patricio Salvador 321142391
 ;; - Valencia Pérez Guillermo Emanuel 321018689
