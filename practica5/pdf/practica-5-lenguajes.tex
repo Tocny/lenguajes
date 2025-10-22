@@ -27,6 +27,7 @@
 \usepackage{algorithm2e}
 \usepackage{biblatex}
 \usepackage{tabularx}
+\usepackage{textgreek}
 \usepackage{ragged2e}
 
 \newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
@@ -274,11 +275,79 @@ Si \texttt{desugar} produjera algo inválido:
 \begin{enumerate}
 \setcounter{enumi}{8}
 
-\item \textbf{(1 pts.) ¿Qué papel cumple el ambiente (\texttt{DefrdSub}) en la evaluación de expresiones con variables?}
+\item \textbf{(1 pts.) ¿Qué papel cumple el ambiente (\texttt{DefrdSub}) en la evaluación de expresiones con variables?}\\
+Se trata de la memoria que requere cada aplicación de \textit{interp} para evaluar con variables ligadas. De otro modo no es posible pasar de \textit{CFWBAE} a \textit{CFWBAE-Value}.
+
+Por ejemplo, para la siguiente expresión.
+\begin{lstlisting}
+{with {x 5}
+	{with {y 3}
+		{+ x y}}}
+\end{lstlisting}
+El \textit{parser} hace lo siguiente:
+\begin{lstlisting}
+(withS (list (binding 'x (numS 5))) 
+	(withS (list (binding 'y (numS 3))) 
+		(opS + (list (idS 'x) (idS 'y)))))
+\end{lstlisting}
+Y mediante \textit{desugar} hace lo siguiente:
+\begin{lstlisting}
+(app (fun '(x) (app (fun '(y) (op + (list (id 'x) (id 'y)))) 
+	(list (num 3))))
+	(list (num 5)))
+\end{lstlisting}
+Al final, se crean los ambientes necesarios para evaluar la función:
+\begin{lstlisting}
+env0 = (mtSub)
+env1 = (aSub 'x (numV 5) env0)
+env2 = (aSub 'y (numV 3) env1)
+\end{lstlisting}
+Lo cual nos permite evaluar la función mediante \textit{lookup}:
+\begin{lstlisting}
+(lookup 'x env2) -> (numV 5)
+(lookup 'y env2) -> (numV 3)
+(op + (list (id 'x) (id 'y))) == (+ x y) -> (+ 5 3) -> 8
+\end{lstlisting}
+
 
 \item \textbf{(1 pts.) ¿Qué diferencias encuentras entre evaluar \texttt{with} directamente y evaluar la versión desazucarada (como \texttt{app(fun ...)})?}
+\begin{enumerate}
+	\item \textbf{Ambientes}: El \texttt{with} utiliza un ambiente en la evaluación de funciones mientras la versión desazucarada crea una cerradura antes de crear el ambiente de la función. Se diría que \texttt{with} ocupa menos pasos y menos memoria que la versión desazucarada.
+	\begin{lstlisting}
+(aSub 'x (numV 5) env-actual) 			;with
+(aSub 'x (numV 5) (closure-env closure)) 	;app(fun)
+	\end{lstlisting}
 
-\item \textbf{(1 pts.) De acuerdo a la implementación dada en el archivo \texttt{interp.rkt} ¿Qué estrategia de evaluación usa el intérprete: estricta o perezosa? Justifica tu respuesta.}
+	\item \textbf{Anidamiento}: El \texttt{with} puede manejar multiples asignaciones y crear un único ambiente para las mismas, mientras que la versión desazucarada, al crear una cerradura por función, tiene que crear multiples ambientes.
+	\begin{lstlisting}
+{with {x 1 y 2} {+ x y}} 		;ambiente extendido.
+{{fun {x} {{fun {y} {+ x y}} 2}} 1}	;ambientes anidados.
+	\end{lstlisting}
+
+	\item \textbf{Mantenimiento}: La versión desazucarada requiere menos constructores, por lo que es más fácil de mantener.
+	
+\end{enumerate}
+
+\item \textbf{(1 pts.) De acuerdo a la implementación dada en el archivo \texttt{interp.rkt} ¿Qué estrategia de evaluación usa el intérprete: estricta o perezosa? Justifica tu respuesta.}\\
+Notemos los siguientes fragmentos del código:
+\begin{itemize}
+	\item Líneas 24-26:
+	\begin{lstlisting}[language=Lisp]
+[op (f args)  
+	(let ([arg-vals (map (lambda (a) (interp a env)) args)])
+	\end{lstlisting}
+	
+	\item Líneas 41-43...52:
+	\begin{lstlisting}[language=Lisp]
+[app (fun-expr arg-exprs)  
+	(let ([fun-val (interp fun-expr env)]
+		[arg-vals (map (lambda (a) (interp a env)) arg-exprs)])
+		...
+			(interp (closure-body fun-val) new-env))
+	\end{lstlisting}
+\end{itemize}
+En las observaciones anteriorees, el uso de \texttt{(map(lambda (a)...))} evalua todos los argumentos y operandos antes de aplicar la función o ejecutar una operación. Lo cual es congruente con la definición de \textit{Evaluación Estricta}.
+
 
 \end{enumerate}
 
