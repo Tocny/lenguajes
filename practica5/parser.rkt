@@ -28,7 +28,7 @@
     [(list op args ...)
      (if (and (symbol? op) (operator? op))
          (opS (get-op op) (map parse args)) 
-         (appS (parse op) (map parse args))]
+         (appS (parse op) (map parse args)))]
     [else (error 'parse "expresión no válida: ~a" sexp)]))
 (define (parse-cond cases)
   (match cases

@@ -5,7 +5,7 @@
 (define (desugar expr)
 
   (type-case SCFWBAE expr
-  Estas construcciones no tienen que desazucararse, solo se convierten directamente:
+  ;Estas construcciones no tienen que desazucararse, solo se convierten directamente:
     [idS (i) (id i)]  
     [numS (n) (num n)]  
     [boolS (b) (bool b)]  
