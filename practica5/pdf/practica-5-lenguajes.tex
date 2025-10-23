@@ -356,10 +356,68 @@ En las observaciones anteriorees, el uso de \texttt{(map(lambda (a)...))} evalua
 \begin{enumerate}
 \setcounter{enumi}{11}
 
-\item \textbf{(1 pts.) Propón una extensión del lenguaje donde \texttt{with} acepte funciones anónimas múltiples (como parámetros simultáneos). Escribe la traducción en forma de desazucar.}
+\item \textbf{(1 pts.) Propón una extensión del lenguaje donde \texttt{with} acepte funciones anónimas múltiples (como parámetros simultáneos). Escribe la traducción en forma de desazucar.}\\
+Habría que agregar una nueva construcción al tipo SCFWBAE:
+    \begin{lstlisting}[language=Lisp]
+[withFunS (bindings (listof binding?)) (body SCFWBAE?)]
+	\end{lstlisting}
+withFunS se desazucara de manera similar a with, por lo que habría que agregar a desugar.rkt un nuevo caso:
+\begin{lstlisting}[language=Lisp]
+[withFunS (bindings body)
+   (let ([ids (map binding-id bindings)]
+         [vals (map (lambda (b) (desugar (binding-value b))) bindings)])
+     (app (fun ids (desugar body)) vals))]
+	\end{lstlisting}
 
-\item \textbf{(0.5 pts.) Explica ¿Qué cambios serían necesarios en el \texttt{interp} si se decidiera eliminar el módulo \texttt{desugar} y manejar los azúcares directamente?}
+\item \textbf{(0.5 pts.) Explica ¿Qué cambios serían necesarios en el \texttt{interp} si se decidiera eliminar el módulo \texttt{desugar} y manejar los azúcares directamente?}\\
+El interp toma expresiones azúcaradas, las interpreta como sugars y luego las desazucara en desugar, al eliminar desugar habría que cambiar interp para que trate directamente con expresiones SCFWBAE y no CFWBAE.
+\begin{lstlisting}[language=Lisp]
+(type-case CFWBAE expr ...
+	\end{lstlisting}
+y agregar todos los casos de constructores azucarados:\\
+Primero el with
+\begin{lstlisting}[language=Lisp]
+[withS (bindings body)
+  (let* ([ids (map binding-id bindings)]
+         [vals (map (lambda (b) (interp (binding-value b) env)) bindings)]
+         [new-env (foldr (lambda (id val acc) (aSub id val acc)) env ids vals)])
+    (interp body new-env))]
+	\end{lstlisting}
+with*:
+\begin{lstlisting}[language=Lisp]
+[withS* (bindings body)
+  (if (null? bindings)
+      (interp body env)
+      (let* ([first (first bindings)]
+             [new-env (aSub (binding-id first)
+                            (interp (binding-value first) env)
+                            env)])
+        (interp (withS* (rest bindings) body) new-env)))]
+	\end{lstlisting}
+cond:
+\begin{lstlisting}[language=Lisp]
+[condS (cases)
+  (interp-cond cases env)]
 
+(define (interp-cond cases env)
+  (match cases
+    [(list) (error 'interp "cond sin casos")]
+    [(list (else-cond e)) (interp (else-expr e) env)]
+    [(list (condition test then) rest ...)
+     (let ([test-val (interp (test-expr test) env)])
+       (if (and (boolV? test-val) (boolV-b test-val))
+           (interp (then-expr then) env)
+           (interp-cond rest env)))]))
+	\end{lstlisting}
+Y el withFun anteriormente agregado:
+\begin{lstlisting}[language=Lisp]
+[withFunS (bindings body)
+  (let* ([ids (map binding-id bindings)]
+         [vals (map (lambda (b) (interp (binding-value b) env)) bindings)]
+         [new-env (foldr (lambda (id val acc) (aSub id val acc)) env ids vals)])
+    (interp body new-env))]
+	\end{lstlisting}
+    
 \end{enumerate}
 
 
