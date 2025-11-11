@@ -24,26 +24,30 @@
         (case op
           ;; Operaciones aritméticas (returns numberT)
           [(+ - * / modulo expt add1 sub1)
-           (for-each (lambda (arg-type);checamos que todos los argumento sean numeros.
+           (for-each (lambda (arg arg-type);checamos que todos los argumento sean numeros.
                        (unless (numberT? arg-type)
-                         (error 'typeof (format "Operador ~a espera numberT, obtuovo: ~a" op arg-type))))
-                     arg-types)
+                         (error 'typeof
+                                (format "Error in parameter ~a\n Expected type: (numberT)\nGiven type: (booleanT)" arg)
+                                )))
+                     args arg-types)
            (numberT)]
-          
+
           ;; Comparadores (returns booleanT)
           [(< <= = > >= zero?)
-           (for-each (lambda (arg-type) ;checamos que todos los argumentos sean números.
+           (for-each (lambda (arg arg-type) ;checamos que todos los argumentos sean números.
                        (unless (numberT? arg-type)
-                         (error 'typeof (format "Operación ~a es numberT, obtuvo: ~a" op arg-type))))
-                     arg-types)
+                         (error 'typeof
+                                (format "Error in parameter ~a\n Expected type: (booleanT)\nGiven type: (booleanT)" arg)
+                                )))
+                     args arg-types)
            (booleanT)]
           
           ;; Operaciones lógicas (returns booleanT)
           [(and or not)
-           (for-each (lambda (arg-type) ;checamos que todos los argumentos sean booleanos.
+           (for-each (lambda (arg arg-type) ;checamos que todos los argumentos sean booleanos.
                        (unless (booleanT? arg-type)
-                         (error 'typeof (format "Operación ~a es booleanT, obtuvo: ~a" op arg-type))))
-                     arg-types)
+                         (error 'typeof (format "Error in parameter ~a\nExpected type: (booleanT)\nGiven type: (numberT)" arg))))
+                     args arg-types)
            (booleanT)]
           
           [else (error 'typeof (format "Operación desconocida: ~a" op))]))]
@@ -55,10 +59,11 @@
             [else-type (typeof else-expr context)]);tipo del else
         ;; La condición debe ser booleana
         (unless (booleanT? cond-type)
-          (error 'typeof "La condición del if debe ser booleana"))
+          (error 'if (string-append "Type error\nConditional's type must be a boolean\nGiven: " (format "~a" cond-type))))
+
         ;; Verificar que el then y el else tengan sean del mismo tipo
         (unless (type-equal? then-type else-type)
-          (error 'typeof "then y else deben tener el mismo tipo"))
+          (error 'typeof "Type error\nconditionals must have same type in then-expr and else-expr"))
         then-type)]
     
     ;; Condicional: COND 
@@ -85,19 +90,43 @@
                           (let ([else-type (typeof else-expr context)])
                             (if result-type
                                 (unless (type-equal? result-type else-type) ; si el caso else no es del mismo tipo que el resultado.
-                                  (error 'typeof "El else debe tener el mismo tipo que las demás"))
+                                  (error 'typeof "Type error\nconditionals must have same type in then-expr and else-expr"))
                                 (set! result-type else-type)))]))
                 cases)
           result-type))]
     
     [funS (params rType body)
-      (error 'typeof "2.2 c) fun")]
+      (let ([extended-ctx (extend-context-with-params params context)])
+        (let ([body-type (typeof body extended-ctx)])
+          (unless (type-equal? body-type rType)
+            (error 'typeof (format "El cuerpo de la función tiene tipo ~a pero se declaró ~a" 
+                                   body-type rType)))
+          (funT (append (map (lambda (p) (param-tipo p)) params) 
+                        (list rType)))))]
     
     [withS (bindings body)
-      (error 'typeof "2.2 d) with")]
+      (for-each (lambda (b)
+                  (let ([declared-type (binding-tipo b)]
+                        [value-type (typeof (binding-value b) context)])
+                    (unless (type-equal? declared-type value-type)
+                      (error 'typeof (format "Variable ~a: se declaró ~a pero tiene tipo ~a"
+                                             (binding-id b) declared-type value-type)))))
+                bindings)
+      (let ([new-context (extend-context-with-bindings bindings context)])
+        (typeof body new-context))]
     
     [withS* (bindings body)
-      (error 'typeof "2.2 d) with*")]
+      (let ([final-context 
+             (foldl (lambda (b ctx)
+                      (let ([declared-type (binding-tipo b)]
+                            [value-type (typeof (binding-value b) ctx)])
+                        (unless (type-equal? declared-type value-type)
+                          (error 'typeof (format "Variable ~a: se declaró ~a pero tiene tipo ~a"
+                                                 (binding-id b) declared-type value-type)))
+                        (gamma (binding-id b) declared-type ctx)))
+                    context
+                    bindings)])
+        (typeof body final-context))]
     
     [appS (fun-expr args)
       (error 'typeof "2.2 e) app")]))
@@ -108,6 +137,21 @@
   (cond [(null? lst) #f]
         [(condition (car lst)) (car lst)]
         [else (findf condition (cdr lst))]))
+
+;; Auxilar para regresar el contexto de la lista de parametros
+(define (extend-context-with-params params ctx)
+  (foldl (lambda (p context)
+           (gamma (param-param p) (param-tipo p) context))
+         ctx
+         params))
+
+;; Auxiliar para regresar el contexto con una lista para with
+(define (extend-context-with-bindings bindings ctx)
+  (foldl (lambda (b context)
+           (gamma (binding-id b) (binding-tipo b) context))
+         ctx
+         bindings))
+
 
 ;; pruebas:
 (printf "~a: ~a\n" '{+ 1 2} (typeof (parse '{+ 1 2}) (phi)))

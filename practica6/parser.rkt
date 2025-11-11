@@ -53,6 +53,7 @@
 (define (parse sexp)
   (cond
     [(number? sexp) (numS sexp)]
+    [(boolean? sexp) (boolS sexp)]
     [(and (symbol? sexp) (boolean-symbol? sexp)) (parse-bool sexp)]
     [(symbol? sexp) (idS sexp)]
     [(list? sexp)
