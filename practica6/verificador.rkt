@@ -129,7 +129,32 @@
         (typeof body final-context))]
     
     [appS (fun-expr args)
-      (error 'typeof "2.2 e) app")]))
+          (let* ([fun-type (typeof fun-expr context)])
+            (unless (funT? fun-type)
+              (error 'typeof
+                     (format "Se intentó aplicar algo que no es función. Tipo encontrado: ~a"
+                     fun-type)))
+            
+            (define param+ret-types (funT-params fun-type))
+
+            (define return-type (last param+ret-types))
+
+            (define param-types (take param+ret-types (sub1 (length param+ret-types))))
+
+            (unless (= (length args) (length param-types))
+              (error 'typeof
+                     (format "Número incorrecto de argumentos. Esperados: ~a, dados: ~a"
+                             (length param-types) (length args))))
+
+            (for-each
+             (lambda (arg param-type)
+               (let ([arg-type (typeof arg context)])
+                 (unless (type-equal? arg-type param-type)
+                   (error 'typeof
+                          (format "Tipo incorrecto de argumento.\nEsperado: ~a\nObtenido: ~a"
+                                  param-type arg-type)))))
+             args param-types)
+           return-type)]))
 
 
 ;Auxiliar que busca el primer elemento en una lista ue cumple una condición.
